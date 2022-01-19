@@ -42,15 +42,21 @@ bool **read_bool_array(const char *file_path, size_t *row_number, size_t *column
     return data;
 }
 
-void log_state(const bool **data, const char *dst_path, const size_t current_iteration, const bool is_transposed, const size_t row_number, const size_t column_number) {
+void log_state(bool **data, const char *dst_path, const size_t current_iteration, const bool is_transposed,
+               const size_t row_number, const size_t column_number, int rank, size_t row_offset) {
     char filename[300] = {0};
-    sprintf(filename, "%s/result_%d.txt", dst_path, (int) current_iteration);
+    if (rank == -1) {
+        sprintf(filename, "%s/result_%d.txt", dst_path, (int) current_iteration);
+    } else {
+        sprintf(filename, "%s/result_%d_pid_%d.txt", dst_path, (int) current_iteration, rank);
+    }
     FILE *out = fopen(filename, "w+");
-    print_raw(data, is_transposed, row_number, column_number, out, 0);
+    print_raw(data, is_transposed, row_number, column_number, out, row_offset);
     fclose(out);
 }
 
-void print_raw(const bool **data, const bool is_transposed, const size_t src_row_number, const size_t src_column_number, FILE *out, const size_t row_offset) {
+void print_raw(bool **data, const bool is_transposed, const size_t src_row_number, const size_t src_column_number,
+               FILE *out, const size_t row_offset) {
     char buf[BUFFER_SIZE] = {0};
     size_t number = 0;
     size_t row_number = is_transposed ? src_column_number : src_row_number;
